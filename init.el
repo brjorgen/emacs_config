@@ -38,9 +38,45 @@
 (tool-bar-mode -1)
 (toggle-scroll-bar -1)
 (fset 'yes-or-no-p 'y-or-n-p)
-(defvar c-default-style "linux")
+;; (defvar c-default-style "linux")
 (setq inhibit-startup-message t
       initial-buffer-choice 'eshell)
+
+(require 'eshell)
+(require 'em-smart)
+(setq eshell-where-to-jump 'begin)
+(setq eshell-review-quick-commands nil)
+(setq eshell-smart-space-goes-to-end t)
+(setq eshell-prompt-function
+(lambda ()
+(concat
+(propertize "┌─[" 'face `(:foreground "purple"))
+(propertize (user-login-name) 'face `(:foreground "yellow"))
+(propertize "@" 'face `(:foreground "purple"))
+(propertize (system-name) 'face `(:foreground "green"))
+(propertize "]──[" 'face `(:foreground "purple"))
+(propertize (format-time-string "%H:%M" (current-time)) 'face `(:foreground "yellow"))
+(propertize "]──[" 'face `(:foreground "purple"))
+(propertize (concat (eshell/pwd)) 'face `(:foreground "white"))
+(propertize "]\n" 'face `(:foreground "purple"))
+(propertize "└─>" 'face `(:foreground "purple"))
+(propertize (if (= (user-uid) 0) " # " " $ ") 'face `(:foreground "white"))
+)))
+(setq eshell-banner-message "
+                     `. ___
+                    __,' __`.                _..----....____   
+        __...--.'``;.   ,.   ;``--..__     .'    ,-._    _.-'  
+  _..-''-------'   `'   `'   `'     O ``-''._   (,;') _,'      
+,'________________                          \\`-._`-','	       
+ `._              ```````````------...___   '-.._'-:	       
+    ```--.._      ,.                     ````--...__\\-.	       
+            `.--. `-`                       ____    |  |`      
+              `. `.                       ,'`````.  ;  ;`      
+                `._`.        __________   `.      \\'__/`       
+                   `-:._____/______/___/____`.     \  `        
+                               |       `._    `.    \\	       
+                               `._________`-.   `.   `.___     
+                                                  `------'` Get 'em!\n\n\n")
 
 ;;; --------------------------------------------------
 ;;;; My elisp files
@@ -48,12 +84,11 @@
 ;;; load them
 ;;; --------------------------------------------------
 (load (concat user-emacs-directory "myelfun.el"))
+(set-exec-path-from-shell-PATH)
 
 ;;; --------------------------------------------------
 ;;; (and in the darkness) Bind them
 ;;; --------------------------------------------------
-(global-set-key (kbd "C-x p") 'run-game)
-(global-set-key (kbd "C-c d") 'clean-dir)
 (global-set-key (kbd "C-c p") 'surround-region)
 
 ;;; --------------------------------------------------
@@ -63,7 +98,7 @@
 ;;; --------------------------------------------------
 
 (global-set-key (kbd "M-;")	'comment-or-uncomment-region)
-(global-set-key (kbd "M-$") 	'query-replace)
+(global-set-key (kbd "M-5") 	'query-replace)
 
 ;;; --------------------------------------------------
 ;;; Movement
@@ -97,23 +132,6 @@
 ;;; --------------------------------------------------
 
 (load-theme 'brian-inkpot t)
-
-(use-package dumb-jump
-  :ensure t
-  :config (setq dumb-jump-force-searcher 'grep)
-	  ;; (add-to-list 'xref-backend-functions #'dumb-jump-xref-activate)
-  :bind (("M-g M-o" . 'dumb-jump-go)
-	 ("M-g M-b" . 'dumb-jump-back)))
-
-(use-package powerline
-  :ensure t
-  :config (powerline-default-theme))
-
-(use-package nyan-mode
-  :ensure t
-  :config  (nyan-mode)
-  	   (nyan-start-animation)
-  	   (nyan-toggle-wavy-trail))
 
 (use-package smartparens
   :ensure t
@@ -158,17 +176,8 @@
 
 (use-package undo-tree
   :ensure t
-  :init (global-undo-tree-mode))
-
-(use-package company
-  :ensure t
-  :config (global-company-mode))
-
-(use-package flycheck
-  :ensure t
-  :init (global-flycheck-mode)
-  :bind	  (("C-h n" . flycheck-next-error)
-	   ("C-h p" . flycheck-previous-error)))
+  :init (global-undo-tree-mode)
+  :commands (undo-tree-visualizer-toggle-timestamps))
 
 (use-package yasnippet
   :ensure t
@@ -217,46 +226,16 @@
 ;;; C
 ;;; --------------------------------------------------
 (add-hook 'c-mode-hook 'display-line-numbers-mode)
-(add-hook 'c-mode-hook 'whitespace-mode)
 
 ;;; --------------------------------------------------
 ;;; LISP
 ;;; --------------------------------------------------
+
+(setq inferior-lisp-program "sbcl")
+
 ;; -- elisp
 (add-hook 'emacs-lisp-mode-hook 'display-line-numbers-mode)
 (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
-
-;;; --------------------------------------------------
-;;; RUST
-;;; --------------------------------------------------
-
-
-;;(setq exec-path (append '("~/.cargo/bin" "~/.scripts/") exec-path))
-
-;;(mapc (lambda (x) (message (to-string x))) 'exec_path)
-
-;; (add-to-list 'exec-path "~/.cargo/bin")
-;; (add-to-list 'exec-path "~/.cargo/bin")
-
-(use-package toml-mode
-  :ensure t)
-
-(use-package rust-mode
-  :ensure t
-  :hook (rust-mode . lsp))
-
-(use-package racer
-  :ensure t
-  :hook (rust-mode . racer-mode))
-
-;; Add keybindings for interacting with Cargo
-(use-package cargo
-  :ensure t
-  :hook (rust-mode . cargo-minor-mode))
-
-(use-package flycheck-rust
-  :ensure t
-  :config (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
 
 ;;;--------------------------------------------------
 ;;;; transparency!

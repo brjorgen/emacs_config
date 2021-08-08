@@ -1,5 +1,5 @@
 (deftheme brian-inkpot
-  "Created 2021-03-12.")
+  "Created 2021-08-08.")
 
 (custom-theme-set-variables
  'brian-inkpot
@@ -50,10 +50,6 @@
  '(minibuffer-prompt ((t (:bold t :foreground "#7e7eae"))))
  '(line-number ((t (:background "#2e2e2e" :foreground "#8b8bcd"))))
  '(line-number-current-line ((t (:bold t :background "#1e1e27" :foreground "#ffcd00"))))
- '(whitespace-trailing ((nil (:background "#343443" :foreground nil))))
- '(whitespace-space ((nil (:background nil :foreground "#434357"))))
- '(whitespace-tab ((nil (:background nil :foreground "#434357"))))
- '(xref-line-number ((t (:background "#2e2e2e" :foreground "#8b8bcd"))))
  '(tab-bar ((t (:bold t :foreground "#b9b9b9" :background "#2e2e37"))))
  '(tab-bar-tab ((t (:foreground "#b9b9b9" :background "#3e3e5e" :box (:line-width -1 :color "#7070a0")))))
  '(tab-bar-tab-inactive ((t (:bold nil :italic t :foreground "#b9b9b9" :background "#3e3e5e"))))
@@ -94,13 +90,7 @@
  '(org-agenda-date ((t (:foreground "#409090"))))
  '(org-agenda-date-weekend ((t (:weight normal :foreground "#8b8bcd"))))
  '(org-agenda-date-today ((t (:weight bold :foreground "#cd8b00"))))
- '(company-tooltip ((t (:background "#4e4e8f" :foreground "#ffffff"))))
- '(company-tooltip-selection ((t (:background "#2e2e3f" :weight bold))))
- '(company-tooltip-annotation ((t (:foreground "#cfbfad"))))
- '(company-tooltip-common ((t (:foreground "#303030" :background "#ad7b57"))))
- '(company-scrollbar-bg ((t (:background "#6e6eaf"))))
- '(company-scrollbar-fg ((t (:background "#000000"))))
  '(helm-selection ((t (:background "#2e2e37"))))
- '(default ((t (:background "#1e1e27" :foreground "#cfbfad")))))
+ '(default ((t (:background "gray9" :foreground "#cfbfad")))))
 
 (provide-theme 'brian-inkpot)
