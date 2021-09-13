@@ -15,6 +15,12 @@
   (add-to-list
    'package-archives '("melpa" . "http://melpa.org/packages/") t))
 
+(if (version< "27.0" emacs-version)
+    (set-fontset-font
+     "fontset-default" 'unicode "Apple Color Emoji" nil 'prepend)
+  (set-fontset-font
+   t 'symbol (font-spec :family "Apple Color Emoji") nil 'prepend))
+
 ;;; --------------------------------------------------
 ;;; custom-set-variables
 ;;; --------------------------------------------------
@@ -32,13 +38,13 @@
 (setq use-package-always-ensure t)
 
 ;;; --------------------------------------------------
-;;; changing the default shit
+;;; changing the default shit 😂
 ;;; --------------------------------------------------
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (toggle-scroll-bar -1)
 (fset 'yes-or-no-p 'y-or-n-p)
-;; (defvar c-default-style "linux")
+(defvar c-default-style "linux")
 (setq inhibit-startup-message t
       initial-buffer-choice 'eshell)
 
@@ -47,21 +53,25 @@
 (setq eshell-where-to-jump 'begin)
 (setq eshell-review-quick-commands nil)
 (setq eshell-smart-space-goes-to-end t)
+
 (setq eshell-prompt-function
-(lambda ()
-(concat
-(propertize "┌─[" 'face `(:foreground "purple"))
-(propertize (user-login-name) 'face `(:foreground "yellow"))
-(propertize "@" 'face `(:foreground "purple"))
-(propertize (system-name) 'face `(:foreground "green"))
-(propertize "]──[" 'face `(:foreground "purple"))
-(propertize (format-time-string "%H:%M" (current-time)) 'face `(:foreground "yellow"))
-(propertize "]──[" 'face `(:foreground "purple"))
-(propertize (concat (eshell/pwd)) 'face `(:foreground "white"))
-(propertize "]\n" 'face `(:foreground "purple"))
-(propertize "└─>" 'face `(:foreground "purple"))
-(propertize (if (= (user-uid) 0) " # " " $ ") 'face `(:foreground "white"))
-)))
+      (lambda ()
+	(concat
+	 (propertize "┌─[" 'face `(:foreground "purple"))
+	 (propertize (user-login-name) 'face `(:foreground "yellow"))
+	 (propertize "@" 'face `(:foreground "purple"))
+	 (propertize (system-name) 'face `(:foreground "green"))
+	 (propertize "]──[" 'face `(:foreground "purple"))
+	 (propertize (format-time-string "%H:%M" (current-time)) 'face `(:foreground "yellow"))
+	 (propertize "]──[" 'face `(:foreground "purple"))
+	 (propertize (concat (eshell/pwd)) 'face `(:foreground "white"))
+	 (propertize "]\n" 'face `(:foreground "purple"))
+	 (propertize "└─>" 'face `(:foreground "purple"))
+	 (propertize (if (= (user-uid) 0) " # " " $ ") 'face `(:foreground "white"))
+	 )
+	)
+      )
+
 (setq eshell-banner-message "
                      `. ___
                     __,' __`.                _..----....____   
@@ -69,7 +79,7 @@
   _..-''-------'   `'   `'   `'     O ``-''._   (,;') _,'      
 ,'________________                          \\`-._`-','	       
  `._              ```````````------...___   '-.._'-:	       
-    ```--.._      ,.                     ````--...__\\-.	       
+    ```--.._      ,.                     ````--...__\\-.
             `.--. `-`                       ____    |  |`      
               `. `.                       ,'`````.  ;  ;`      
                 `._`.        __________   `.      \\'__/`       
@@ -81,13 +91,13 @@
 ;;; --------------------------------------------------
 ;;;; My elisp files
 ;;; --------------------------------------------------
-;;; load them
+;;; load them 🚚
 ;;; --------------------------------------------------
 (load (concat user-emacs-directory "myelfun.el"))
 (set-exec-path-from-shell-PATH)
 
 ;;; --------------------------------------------------
-;;; (and in the darkness) Bind them
+;;; (and in the darkness) Bind them 🧷
 ;;; --------------------------------------------------
 (global-set-key (kbd "C-c p") 'surround-region)
 
@@ -101,7 +111,7 @@
 (global-set-key (kbd "M-5") 	'query-replace)
 
 ;;; --------------------------------------------------
-;;; Movement
+;;; Movement 💨👟
 ;;; --------------------------------------------------
 ;; --- REGISTERS
 
@@ -119,7 +129,7 @@
 ;; c-u c-spc jumps.
 
 ;;; --------------------------------------------------
-;;;; Misc
+;;;; Misc 🔧
 ;;; --------------------------------------------------
 (global-set-key (kbd "C-c C-e C-b") 'eval-buffer)
 (global-set-key (kbd "M-g M-c")	    'save-buffers-kill-emacs)
@@ -128,15 +138,16 @@
 ;;(global-set-key (kbd "C-c C-q") (lambda () (interactive) (kill-emacs)))
 
 ;;; --------------------------------------------------
-;;;; Muh plugins
+;;;; Muh 📦's
 ;;; --------------------------------------------------
 
 (load-theme 'brian-inkpot t)
+(hl-line-mode)
 
 (use-package smartparens
   :ensure t
   :config (smartparens-global-mode)
-	  (show-smartparens-global-mode))
+  (show-smartparens-global-mode))
 
 (use-package helm
   :ensure t
@@ -153,7 +164,8 @@
 
 (use-package ace-window
   :ensure t
-  :bind	  ("C-x o" . 'ace-window))
+  :bind	  ("C-x o" . 'ace-window)
+  :config (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
 
 (use-package ace-jump-mode
   :ensure t
@@ -184,6 +196,19 @@
   :config (yas-global-mode t)
 	  (yas-reload-all))
 
+(use-package company
+  :ensure t
+  :config (global-company-mode)
+  (define-key company-active-map (kbd "C-n") 'company-select-next)
+(define-key company-active-map (kbd "C-p") 'company-select-previous)
+(define-key company-search-map (kbd "C-n") 'company-select-next)
+(define-key company-search-map (kbd "C-p") 'company-select-previous)
+(define-key company-search-map (kbd "C-t") 'company-search-toggle-filtering))
+
+(use-package flycheck
+  :ensure t
+  :config (global-flycheck-mode))
+
 (use-package org
   :ensure t
   :bind (("C-c l" . 'org-store-link)
@@ -208,9 +233,13 @@
 
 (use-package elfeed
   :ensure t
-  :config (mapcar #'elfeed-add-feed '("https://wwwnc.cdc.gov/eid/rss/ahead-of-print.xml"
+  :config
+  (global-set-key (kbd "<f1>") #'elfeed)
+  (mapcar #'elfeed-add-feed '("https://wwwnc.cdc.gov/eid/rss/ahead-of-print.xml"
 				      "https://hnrss.org/frontpage"
-				      "http://www.reddit.com/r/news/.rss")))
+				      "https://www.lemonde.fr/europe/rss_full.xml"
+				      "https://www.lemonde.fr/politique/rss_full.xml"
+				      "https://www.lemonde.fr/rss/une.xml")))
 
 ;;; --------------------------------------------------
 ;;;; Misc. binding
