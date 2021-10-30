@@ -1,4 +1,4 @@
-;;; init.el --- My Emacs init file
+;;; init.el --- My Emacs init file 📦
 ;;; --------------------------------------------------
 ;;; Commentary:
 ;;; This is file is constantly evolving.  What you see now may not be what I currently use.
@@ -8,7 +8,7 @@
 (package-initialize)
 
 ;;; --------------------------------------------------
-;;; melpa
+;;; melpa 📚
 ;;; --------------------------------------------------
 (when (>= emacs-major-version 24)
   (require 'package)
@@ -22,13 +22,7 @@
    t 'symbol (font-spec :family "Apple Color Emoji") nil 'prepend))
 
 ;;; --------------------------------------------------
-;;; custom-set-variables
-;;; --------------------------------------------------
-(setq custom-file (concat user-emacs-directory "/custom.el"))
-(load-file custom-file)
-
-;;; --------------------------------------------------
-;;; use-package
+;;; use-package setup 🔧
 ;;; --------------------------------------------------
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -38,6 +32,14 @@
 (setq use-package-always-ensure t)
 
 ;;; --------------------------------------------------
+;;;; Muh elisp files 🤷‍
+;;; --------------------------------------------------
+;;; load them
+;;; --------------------------------------------------
+(load (concat user-emacs-directory "custom.el"))
+(load (concat user-emacs-directory "myelfun.el"))
+
+;;; --------------------------------------------------
 ;;; changing the default shit 😂
 ;;; --------------------------------------------------
 (menu-bar-mode -1)
@@ -45,10 +47,24 @@
 (toggle-scroll-bar -1)
 (fset 'yes-or-no-p 'y-or-n-p)
 (defvar c-default-style "linux")
+
+;;; --------------------------------------------------
+;;; Eshell setup ✅
+;;; --------------------------------------------------
+
+(defun set-exec-path-from-shell-PATH ()
+  (let ((path-from-shell
+	 (shell-command-to-string "$SHELL -i -l -c 'echo $PATH'")))
+    (setenv "PATH" path-from-shell)
+    (setq exec-path (split-string path-from-shell path-separator))))
+(when window-system (set-exec-path-from-shell-PATH))
+
 (setq inhibit-startup-message t
       initial-buffer-choice 'eshell)
 
-(require 'eshell)
+(setq eshell-banner-message (concat (nth (random (length *eshell-welcome-messages*))
+     *eshell-welcome-messages*)  "\n\n"))
+
 (require 'em-smart)
 (setq eshell-where-to-jump 'begin)
 (setq eshell-review-quick-commands nil)
@@ -66,43 +82,14 @@
 	 (propertize "]──[" 'face `(:foreground "purple"))
 	 (propertize (concat (eshell/pwd)) 'face `(:foreground "white"))
 	 (propertize "]\n" 'face `(:foreground "purple"))
-	 (propertize "└─>" 'face `(:foreground "purple"))
+	 (propertize "└─>" 'face `(:foreground "purple"))[]
 	 (propertize (if (= (user-uid) 0) " # " " $ ") 'face `(:foreground "white"))
 	 )
 	)
       )
 
-(setq eshell-banner-message "
-                     `. ___
-                    __,' __`.                _..----....____   
-        __...--.'``;.   ,.   ;``--..__     .'    ,-._    _.-'  
-  _..-''-------'   `'   `'   `'     O ``-''._   (,;') _,'      
-,'________________                          \\`-._`-','	       
- `._              ```````````------...___   '-.._'-:	       
-    ```--.._      ,.                     ````--...__\\-.
-            `.--. `-`                       ____    |  |`      
-              `. `.                       ,'`````.  ;  ;`      
-                `._`.        __________   `.      \\'__/`       
-                   `-:._____/______/___/____`.     \  `        
-                               |       `._    `.    \\	       
-                               `._________`-.   `.   `.___     
-                                                  `------'` Get 'em!\n\n\n")
-
 ;;; --------------------------------------------------
-;;;; My elisp files
-;;; --------------------------------------------------
-;;; load them 🚚
-;;; --------------------------------------------------
-(load (concat user-emacs-directory "myelfun.el"))
-(set-exec-path-from-shell-PATH)
-
-;;; --------------------------------------------------
-;;; (and in the darkness) Bind them 🧷
-;;; --------------------------------------------------
-(global-set-key (kbd "C-c p") 'surround-region)
-
-;;; --------------------------------------------------
-;;;; Generic editing stuff
+;;;; Generic editing stuff 📝
 ;;; --------------------------------------------------
 ;;; editing
 ;;; --------------------------------------------------
@@ -113,7 +100,10 @@
 ;;; --------------------------------------------------
 ;;; Movement 💨👟
 ;;; --------------------------------------------------
-;; --- REGISTERS
+;; --- Whitespace jumps
+(global-set-key (kbd "s-f")	'forward-whitespace)
+
+;; --- REGISTERS 💾
 
 (global-set-key (kbd "M-3")   'point-to-register)
 (global-set-key (kbd "C-3")   'jump-to-register)
@@ -129,7 +119,7 @@
 ;; c-u c-spc jumps.
 
 ;;; --------------------------------------------------
-;;;; Misc 🔧
+;;;; Misc
 ;;; --------------------------------------------------
 (global-set-key (kbd "C-c C-e C-b") 'eval-buffer)
 (global-set-key (kbd "M-g M-c")	    'save-buffers-kill-emacs)
@@ -138,11 +128,11 @@
 ;;(global-set-key (kbd "C-c C-q") (lambda () (interactive) (kill-emacs)))
 
 ;;; --------------------------------------------------
-;;;; Muh 📦's
+;;;; Muh packages 📦
 ;;; --------------------------------------------------
 
 (load-theme 'brian-inkpot t)
-(hl-line-mode)
+(global-hl-line-mode)
 
 (use-package smartparens
   :ensure t
@@ -220,7 +210,7 @@
   (setq org-agenda-files '("~/.org/agendas/school.org"
 			   "~/.org/agendas/home.org"
 			   "~/.org/agendas/personal_projects.org"
-			   "~/.org/agendas/self_progress.org")))
+			   "~/.org/agendas/progress.org")))
 
 (use-package org-journal
   :ensure t
@@ -241,36 +231,56 @@
 				      "https://www.lemonde.fr/politique/rss_full.xml"
 				      "https://www.lemonde.fr/rss/une.xml")))
 
+(use-package dumb-jump
+  :init (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
+  :ensure t)
+
+(use-package disaster
+  :ensure t
+  :config (define-key c-mode-base-map (kbd "C-c d") 'disaster))
+
+(use-package tuareg
+  :ensure t)
+
 ;;; --------------------------------------------------
 ;;;; Misc. binding
 ;;; --------------------------------------------------
-(global-set-key (kbd "C-c C-v") 'browse-url)
+(global-set-key (kbd "C-c C-v")	'browse-url)
 (global-set-key (kbd "C-h C-k") 'helm-show-kill-ring)
-(global-set-key (kbd "C-c C-a")	'recompile)
 
 ;;; --------------------------------------------------
-;;;; mode hooks & context-specific stuff
+;;;; mode bindings & hooks
 ;;; --------------------------------------------------
 ;;; --------------------------------------------------
 ;;; C
 ;;; --------------------------------------------------
 (add-hook 'c-mode-hook 'display-line-numbers-mode)
+(global-set-key (kbd "C-c C-c c") 'compile)
 
 ;;; --------------------------------------------------
 ;;; LISP
 ;;; --------------------------------------------------
 
-(setq inferior-lisp-program "sbcl")
+(custom-set-variables '(inferior-lisp-program "sbcl"))
 
 ;; -- elisp
 (add-hook 'emacs-lisp-mode-hook 'display-line-numbers-mode)
 (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
 
+;;; --------------------------------------------------
+;;; PYTHON
+;;; --------------------------------------------------
+
+(custom-set-variables
+ '(flycheck-python-pycompile-executable "python3")
+ '(flycheck-python-pylint-executable "python3")
+ '(python-shell-interpreter "/usr/bin/python3"))
+
 ;;;--------------------------------------------------
-;;;; transparency!
+;;;; Transparency!
 ;;;--------------------------------------------------
- ;; (set-frame-parameter (selected-frame) 'alpha '(85 85))
- ;; (add-to-list 'default-frame-alist '(alpha 85 85))
+;;(set-frame-parameter (selected-frame) 'alpha '(85 85))
+;;(add-to-list 'default-frame-alist '(alpha 85 85))
 
 ;;;--------------------------------------------------
 ;;;; Quality of life stuffs
