@@ -46,47 +46,17 @@
 (tool-bar-mode -1)
 (toggle-scroll-bar -1)
 (fset 'yes-or-no-p 'y-or-n-p)
+(setq inhibit-startup-message t
+      initial-buffer-choice 'eshell)
+
 (defvar c-default-style "linux")
 
 ;;; --------------------------------------------------
 ;;; Eshell setup ✅
 ;;; --------------------------------------------------
 
-(defun set-exec-path-from-shell-PATH ()
-  (let ((path-from-shell
-	 (shell-command-to-string "$SHELL -i -l -c 'echo $PATH'")))
-    (setenv "PATH" path-from-shell)
-    (setq exec-path (split-string path-from-shell path-separator))))
-(when window-system (set-exec-path-from-shell-PATH))
-
-(setq inhibit-startup-message t
-      initial-buffer-choice 'eshell)
-
 (setq eshell-banner-message (concat (nth (random (length *eshell-welcome-messages*))
-     *eshell-welcome-messages*)  "\n\n"))
-
-(require 'em-smart)
-(setq eshell-where-to-jump 'begin)
-(setq eshell-review-quick-commands nil)
-(setq eshell-smart-space-goes-to-end t)
-
-(setq eshell-prompt-function
-      (lambda ()
-	(concat
-	 (propertize "┌─[" 'face `(:foreground "purple"))
-	 (propertize (user-login-name) 'face `(:foreground "yellow"))
-	 (propertize "@" 'face `(:foreground "purple"))
-	 (propertize (system-name) 'face `(:foreground "green"))
-	 (propertize "]──[" 'face `(:foreground "purple"))
-	 (propertize (format-time-string "%H:%M" (current-time)) 'face `(:foreground "yellow"))
-	 (propertize "]──[" 'face `(:foreground "purple"))
-	 (propertize (concat (eshell/pwd)) 'face `(:foreground "white"))
-	 (propertize "]\n" 'face `(:foreground "purple"))
-	 (propertize "└─>" 'face `(:foreground "purple"))[]
-	 (propertize (if (= (user-uid) 0) " # " " $ ") 'face `(:foreground "white"))
-	 )
-	)
-      )
+					 *eshell-welcome-messages*)  "\n\n"))
 
 ;;; --------------------------------------------------
 ;;;; Generic editing stuff 📝
@@ -110,13 +80,10 @@
 
 ;;; ---------------------------------------------------
 ;; --- unsetting
+;;; --------------------------------------------------
 
 (global-unset-key (kbd "C-x r SPC"))
 (global-unset-key (kbd "C-x r j"))
-(global-unset-key (kbd "C-c ! n"))
-(global-unset-key (kbd "C-c ! p"))
-
-;; c-u c-spc jumps.
 
 ;;; --------------------------------------------------
 ;;;; Misc
@@ -125,14 +92,13 @@
 (global-set-key (kbd "M-g M-c")	    'save-buffers-kill-emacs)
 (global-unset-key (kbd "C-x C-c"))
 
-;;(global-set-key (kbd "C-c C-q") (lambda () (interactive) (kill-emacs)))
-
 ;;; --------------------------------------------------
 ;;;; Muh packages 📦
 ;;; --------------------------------------------------
 
-(load-theme 'brian-inkpot t)
-(global-hl-line-mode)
+(use-package gruvbox-theme
+  :ensure t
+  :config (load-theme 'gruvbox-dark-soft t))
 
 (use-package smartparens
   :ensure t
@@ -150,7 +116,8 @@
 	 ("C-h C-h"	. 'helm-man-woman)
 	 ("C-h c"	. 'helm-calcul-expression)
 	 ("C-h g"	. 'helm-grep-do-git-grep)
-	 ("C-h f"	. 'helm-find)))
+	 ("C-h f"	. 'helm-find)
+	 ("C-h C-k"	. 'helm-show-kill-ring)))
 
 (use-package ace-window
   :ensure t
@@ -159,8 +126,8 @@
 
 (use-package ace-jump-mode
   :ensure t
-  :bind   ("C-x w" . 'ace-jump-mode)
-	  ("C-x j" . 'ace-jump-line-mode))
+  :bind   (("C-x w" . 'ace-jump-mode)
+	  ("C-x j" . 'ace-jump-line-mode)))
 
 (use-package magit
   :ensure t
@@ -179,25 +146,42 @@
 (use-package undo-tree
   :ensure t
   :init (global-undo-tree-mode)
-  :commands (undo-tree-visualizer-toggle-timestamps))
+  :config (setq undo-tree-visualizer-timestamps t)
+  (setq undo-tree-visualizer-diff t))
+
+(use-package  yasnippet-classic-snippets
+  :ensure t)
 
 (use-package yasnippet
   :ensure t
   :config (yas-global-mode t)
-	  (yas-reload-all))
+  (yas-reload-all))
+
+(use-package realgud
+  :ensure t)
+
+(use-package realgud-lldb
+  :ensure t
+  :bind (("C-c D" .  'realgud--lldb)))
 
 (use-package company
   :ensure t
   :config (global-company-mode)
   (define-key company-active-map (kbd "C-n") 'company-select-next)
-(define-key company-active-map (kbd "C-p") 'company-select-previous)
-(define-key company-search-map (kbd "C-n") 'company-select-next)
-(define-key company-search-map (kbd "C-p") 'company-select-previous)
-(define-key company-search-map (kbd "C-t") 'company-search-toggle-filtering))
+  (define-key company-active-map (kbd "C-p") 'company-select-previous)
+  (define-key company-search-map (kbd "C-n") 'company-select-next)
+  (define-key company-search-map (kbd "C-p") 'company-select-previous)
+  (define-key company-search-map (kbd "C-t") 'company-search-toggle-filtering)
+  (setq company-clang-arguments '("-I/opt/homebrew/include" "-I/usr/local/")))
 
 (use-package flycheck
   :ensure t
-  :config (global-flycheck-mode))
+  :config (global-flycheck-mode)
+  (setq flycheck-clang-include-path '("/opt/homebrew/include/")))
+
+;; (flycheck-define-checker c
+;;   "Adding brew paths to clang"
+;;   :command ("clang" "-Wall" "-Werror" "-Wextra" "-I /opt/homebrew/Cellar/*/*/include"))
 
 (use-package org
   :ensure t
@@ -207,10 +191,9 @@
 	 ("C-c b" . 'org-switchb))
   :config
   (setq org-log-done 'time)
-  (setq org-agenda-files '("~/.org/agendas/school.org"
-			   "~/.org/agendas/home.org"
-			   "~/.org/agendas/personal_projects.org"
-			   "~/.org/agendas/progress.org")))
+  (setq org-agenda-files '("~/.emacs.d/org/agendas/school.org"
+			   "~/.emacs.d/org/agendas/home.org"
+			   "~/.emacs.d/org/agendas/personal_projects.org")))
 
 (use-package org-journal
   :ensure t
@@ -226,27 +209,22 @@
   :config
   (global-set-key (kbd "<f1>") #'elfeed)
   (mapcar #'elfeed-add-feed '("https://wwwnc.cdc.gov/eid/rss/ahead-of-print.xml"
-				      "https://hnrss.org/frontpage"
-				      "https://www.lemonde.fr/europe/rss_full.xml"
-				      "https://www.lemonde.fr/politique/rss_full.xml"
-				      "https://www.lemonde.fr/rss/une.xml")))
-
-(use-package dumb-jump
-  :init (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
-  :ensure t)
+			      "https://hnrss.org/frontpage"
+			      "https://www.lemonde.fr/europe/rss_full.xml"
+			      "https://www.lemonde.fr/politique/rss_full.xml"
+			      "https://www.lemonde.fr/rss/une.xml")))
 
 (use-package disaster
   :ensure t
   :config (define-key c-mode-base-map (kbd "C-c d") 'disaster))
 
-(use-package tuareg
+(use-package rust-mode
   :ensure t)
 
 ;;; --------------------------------------------------
 ;;;; Misc. binding
 ;;; --------------------------------------------------
 (global-set-key (kbd "C-c C-v")	'browse-url)
-(global-set-key (kbd "C-h C-k") 'helm-show-kill-ring)
 
 ;;; --------------------------------------------------
 ;;;; mode bindings & hooks
@@ -254,38 +232,45 @@
 ;;; --------------------------------------------------
 ;;; C
 ;;; --------------------------------------------------
+
 (add-hook 'c-mode-hook 'display-line-numbers-mode)
 (global-set-key (kbd "C-c C-c c") 'compile)
 
 ;;; --------------------------------------------------
 ;;; LISP
 ;;; --------------------------------------------------
-
-(custom-set-variables '(inferior-lisp-program "sbcl"))
-
 ;; -- elisp
 (add-hook 'emacs-lisp-mode-hook 'display-line-numbers-mode)
 (add-hook 'emacs-lisp-mode-hook 'eldoc-mode)
 
+;; (load (expand-file-name "~/.quicklisp/slime-helper.el"))
+(setq inferior-lisp-program "sbcl")
+
 ;;; --------------------------------------------------
 ;;; PYTHON
 ;;; --------------------------------------------------
+(setq python-shell-interpreter "python3.10")
 
-(custom-set-variables
- '(flycheck-python-pycompile-executable "python3")
- '(flycheck-python-pylint-executable "python3")
- '(python-shell-interpreter "/usr/bin/python3"))
-
-;;;--------------------------------------------------
+;;; --------------------------------------------------
 ;;;; Transparency!
-;;;--------------------------------------------------
-;;(set-frame-parameter (selected-frame) 'alpha '(85 85))
-;;(add-to-list 'default-frame-alist '(alpha 85 85))
+;;; --------------------------------------------------
+(defun make-tansparent ()
+  "Make the current frame transparent."
+  (set-frame-parameter (selected-frame) 'alpha '(85 85))
+  (add-to-list 'default-frame-alist '(alpha 85 85)))
+
+;; (make-transparent)
 
 ;;;--------------------------------------------------
 ;;;; Quality of life stuffs
 ;;;--------------------------------------------------
 
+(defun set-exec-path-from-shell-PATH ()
+  (let ((path-from-shell
+	 (shell-command-to-string "$SHELL -i -l -c 'echo $PATH'")))
+    (setenv "PATH" path-from-shell)
+    (setq exec-path (split-string path-from-shell path-separator))))
+(when window-system (set-exec-path-from-shell-PATH))
 (add-to-list 'exec-path "~/.scripts")
 
 ;;;--------------------------------------------------
