@@ -50,7 +50,7 @@
 (global-set-key (kbd "C-c C-e C-b") 'eval-buffer)
 (global-set-key (kbd "C-c C-c C-c") 'compile)
 (global-display-fill-column-indicator-mode)
-;; (global-display-line-numbers-mode)
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
 
 (defvar c-default-style "linux")
 
@@ -125,6 +125,13 @@
   :config (setq flycheck-clang-include-path '("/opt/homebrew/include/"))
   :custom (flycheck-display-errors-delay .3))
 
+(use-package elpy
+  :ensure t
+  :config (elpy-enable)
+	  (when (require 'flycheck nil t)
+	    (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+	    (add-hook 'elpy-mode-hook 'flycheck-mode)))
+
 (use-package org
   :ensure t
   :bind (("C-c l" . 'org-store-link)
@@ -155,13 +162,6 @@
   (mapcar #'elfeed-add-feed '("https://wwwnc.cdc.gov/eid/rss/ahead-of-print.xml"
 			      "https://hnrss.org/frontpage"
 			      "https://www.lemonde.fr/rss/une.xml")))
-
-(use-package elpy
-  :ensure t
-  :config (elpy-enable)
-	  (when (require 'flycheck nil t)
-	    (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
-	    (add-hook 'elpy-mode-hook 'flycheck-mode)))
 
 ;;;--------------------------------------------------
 ;;; init.el ends here
