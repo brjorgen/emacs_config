@@ -58,6 +58,31 @@
 ;;; Packages 📦
 ;;; --------------------------------------------------
 
+(use-package monokai-theme
+  :config (load-theme 'monokai))
+
+(use-package helm
+  :ensure t
+  :bind (("C-x C-f"	. 'helm-find-files)
+	 ("C-s"		. 'helm-occur)
+	 ("C-x b"	. 'helm-mini)
+	 ("M-x"		. 'helm-M-x)
+	 ("C-h C-r"	. 'helm-register)
+	 ("C-h C-b"	. 'helm-bookmarks)
+	 ("C-h C-h"	. 'helm-man-woman)
+	 ("C-h C-c"	. 'helm-calcul-expression)
+	 ("C-h C-g"	. 'helm-grep-do-git-grep)
+	 ("C-h C-f"	. 'helm-find)
+	 ("C-h C-k"	. 'helm-show-kill-ring)))
+
+(use-package ace-window
+  :ensure t
+  :bind	  ("C-x o" . 'ace-window)
+  :config (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+  (custom-set-faces
+   '(aw-leading-char-face
+     ((t (:inherit ace-jump-face-foreground :height 2.0))))))
+
 (use-package magit
   :ensure t
   :bind (("C-; C-m" . 'magit-stage-modified)
